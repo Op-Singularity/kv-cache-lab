@@ -1,5 +1,10 @@
 # kv-cache-lab
 
+[![build](https://github.com/Op-Singularity/kv-cache-lab/actions/workflows/build.yml/badge.svg)](https://github.com/Op-Singularity/kv-cache-lab/actions/workflows/build.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![C++17](https://img.shields.io/badge/C%2B%2B-17-blue)
+![dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
+
 A small C++17 tool that answers one question before you deploy anything: **how
 much KV cache does this model need, and how much context can this card actually
 serve?**
@@ -80,6 +85,9 @@ make test     # 14 assertions, including the 4x hybrid-attention check
 make run      # the invocation above
 ```
 
+CI builds with both `g++` and `clang++`, runs the assertions, exercises the CLI,
+and repeats the build with `-Werror`.
+
 ## Reading a config directly
 
 ```bash
@@ -109,6 +117,7 @@ src/kvcalc.hpp        geometry and budget types, pure functions
 src/kvcalc.cpp        the arithmetic plus a tiny config scanner
 src/main.cpp          CLI, --sweep and --check
 tests/test_kvcalc.cpp assertions, no test framework
+.github/workflows/    g++ + clang++ matrix, CLI smoke test, -Werror build
 ```
 
 ## License

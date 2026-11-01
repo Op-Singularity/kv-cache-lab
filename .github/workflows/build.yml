@@ -1,0 +1,46 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: ${{ matrix.compiler }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [ g++, clang++ ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compiler version
+        run: ${{ matrix.compiler }} --version | head -1
+
+      - name: Build
+        run: make CXX=${{ matrix.compiler }}
+
+      - name: Unit tests
+        run: make test CXX=${{ matrix.compiler }}
+
+      - name: CLI smoke test
+        run: |
+          set -euo pipefail
+          ./bin/kvcalc --layers 32 --full-attn 8 --kv-heads 4 --head-dim 256 \
+              --vram-mib 8151 --util 0.85 --weights-mib 3891 \
+              --sweep 4k,32k,128k --check 76933 | tee cli.txt
+          grep -q "max kv tokens" cli.txt
+          grep -q "does not fit" cli.txt
+          grep -q "error" cli.txt
+
+  strict:
+    name: warnings are errors
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build with -Werror
+        run: make CXX=g++ CXXFLAGS="-std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror"
